@@ -1,4 +1,4 @@
-(ns leiningen.whitespace-linter-test
+(ns whitespace-linter.leiningen-test
   (:require [clojure.test :refer :all]
             [leiningen.whitespace-linter :refer :all]
             [whitespace-linter.test.fixture :as fixture]))
