@@ -1,0 +1,8 @@
+=> 2 problems in /path/to/file.clj
+
+   1. Line error:
+    - Line 1
+    - Line 2
+    - Line 3
+
+   2. File error
