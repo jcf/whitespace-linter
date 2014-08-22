@@ -1,8 +1,34 @@
-(ns whitespace-linter.check)
+(ns whitespace-linter.check
+  "Provides file and line-based checks.
 
-(def max-line-width 80)
+  Line-based check functions are passed a collection of hash-maps, one
+  per line. Each hash-map contains the :path to the file, :line
+  number, and :content of the line. For example,
 
-;; Line {:number 234 :content "Actually string on this line"}
+      [{:path #<File example/file.txt>
+        :line 1
+        :content \"Content of the line, warts and all\"}
+
+  File-based check functions are passed a hash-map of the :path to the
+  file, and its :content. For example,
+
+      {:path #<File example/file.txt>
+       :content \"Content of the line, warts and all\"}
+
+  To indicate an error has been found in a line-based checker return
+  the hash-map for the erroneous line. To indicate an issue with a
+  file-based checker return a truthy value.
+
+  When adding a new check, don't forget to add a report-friendly name
+  to `humanized-check-names`.
+
+  Checkers are run via `whitespace-linter.lint/check-file` and
+  `whitespace-linter.lint/check-lines`.")
+
+(def ^:const max-line-width
+  "This is a universal constant, right?"
+  80)
+
 (defn hard-tabs [lines]
   {:pre [(seq lines)]}
   (filter #(.contains (:content %) "\t") lines))
