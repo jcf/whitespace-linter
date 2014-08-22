@@ -1,4 +1,20 @@
 (ns whitespace-linter.lint
+  "The guts of whitespace-linter. This namespace takes a hash-map of
+  files and their contents, and applies each file checker and line
+  checker in turn.
+
+  Each file checker is given a hash-map of properties about the file
+  to be checked, and each line checker is given a hash-map of
+  properties about the line to be checked.
+
+  The results of each checker are aggregated into a hash-map. An
+  example of which might look like:
+
+      {#<File example/file.txt> {:long-lines #{1 44 86}
+                                 :missing-final-newline true}}
+
+  For more information on adding a line or file-based checker see
+  `whitespace-linter.check`."
   (:require [clojure.string :as str]
             [whitespace-linter.check :as check]))
 
@@ -33,8 +49,6 @@
      {}
      check/line-checks)))
 
-;; {java.io.File {:long-lines #{2 4 32}
-;;                :trailing-whitespace #{3 5}}}
 (defn- validate-file [agg file read-contents]
   (let [file-contents (read-contents)
         file-errors (check-file file file-contents)

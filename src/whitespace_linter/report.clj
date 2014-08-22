@@ -1,4 +1,8 @@
 (ns whitespace-linter.report
+  "Provides functions that pretty print the result of linting a
+  sequence of files.
+
+  For an example report see `fixtures/report.txt`."
   (:require [clojure.string :as str]))
 
 (defn- humanize [k]

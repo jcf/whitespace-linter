@@ -3,11 +3,6 @@
             [whitespace-linter.lint :as lint]
             [whitespace-linter.report :as report]))
 
-;; - Find every file
-;; - Filter down the list
-;; - Apply desired checks
-;; - Return result
-
 (defn- project->files
   "Returns a list of all files in :source-paths and :test-paths."
   [project]
@@ -38,7 +33,18 @@
                        (project->files project))))
 
 (defn whitespace-linter
-  "I don't do a lot."
+  "Checks files for whitespace-related issues.
+
+  Reads all files in :source-paths and :test-paths and lints them
+  using a series of whitespace-related checks.
+
+  An optional list of files to lint can be provided. This optional
+  list will be used in place of :source-paths and :test-paths when
+  provided.
+
+  A glob can be used to lint only the files you care about like so:
+
+      $ lein whitespace-linter app/{scripts,styles}/**/*"
   [project & args]
   (let [[files t1] (profile (read-files args project))
         _ (println (header files t1))
