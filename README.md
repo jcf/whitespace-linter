@@ -1,4 +1,4 @@
-# whitespace-linter
+# whitespace-linter [![Build Status](https://travis-ci.org/listora/whitespace-linter.svg?branch=master)](https://travis-ci.org/listora/whitespace-linter)
 
 A Leiningen plugin to find the invisible errors you didn't even know
 existed.
