@@ -1,0 +1,15 @@
+language: clojure
+lein: lein2
+jvm:
+  - openjdk7
+  - oraclejdk8
+
+env:
+  matrix:
+    - TASK='test'
+    - TASK='whitespace-linter'
+
+script: lein2 $TASK
+
+notifications:
+  email: false
