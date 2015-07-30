@@ -1,4 +1,4 @@
-# whitespace-linter [![Build Status](https://travis-ci.org/listora/whitespace-linter.svg?branch=master)](https://travis-ci.org/listora/whitespace-linter)
+# whitespace-linter [![Build Status](https://travis-ci.org/jcf/whitespace-linter.svg?branch=master)](https://travis-ci.org/jcf/whitespace-linter)
 
 A Leiningen plugin to find the invisible errors you didn't even know
 existed.
@@ -29,6 +29,7 @@ lein whitespace-linter app/{scripts,styles}/**/*
 ## License
 
 Copyright © 2014 Listora
+Copyright © 2015 James Conroy-Finn
 
 Distributed under the Eclipse Public License either version 1.0 or (at
 your option) any later version.
