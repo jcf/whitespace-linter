@@ -28,8 +28,9 @@ lein whitespace-linter app/{scripts,styles}/**/*
 
 ## License
 
-Copyright © 2014 Listora
 Copyright © 2015 James Conroy-Finn
+
+Development sponsored by [Listora](http://www.listora.com/).
 
 Distributed under the Eclipse Public License either version 1.0 or (at
 your option) any later version.
