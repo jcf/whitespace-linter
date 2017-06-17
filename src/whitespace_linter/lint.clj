@@ -21,12 +21,14 @@
 (defn- new-file [file contents]
   {:path file :content contents})
 
-(defn- check-file [file file-contents]
+(defn- check-file [args file file-contents]
   (reduce-kv
    (fn [agg check-name checker]
-     (if (checker (new-file file file-contents))
-       (assoc agg check-name true)
-       agg))
+     (let [{errors :errors
+            warnings :warnings} (checker args (new-file file file-contents))]
+       (cond-> agg
+         errors (assoc-in  [:errors check-name] true)
+         warnings (assoc-in [:warnings check-name] true))))
    {}
    check/file-checks))
 
@@ -38,25 +40,30 @@
    (fn [i content] (new-line file (inc i) content))
    (str/split-lines file-contents)))
 
-(defn- check-lines [file file-contents]
+(defn- check-lines [args file file-contents]
   (let [lines (numbered-lines file file-contents)]
     (reduce-kv
      (fn [agg check-name checker]
-       (let [errors (checker lines)]
-         (if (seq errors)
-           (assoc agg check-name (set (map :line errors)))
-           agg)))
+       (let [{:keys [errors warnings]} (checker args lines)]
+         (cond-> agg
+           (seq errors)
+           (assoc-in [:errors check-name] (set (map :line errors)))
+           (seq warnings)
+           (assoc-in [:warnings check-name] (set (map :line warnings))))))
      {}
      check/line-checks)))
 
-(defn- validate-file [agg file read-contents]
+(defn- validate-file [args agg file read-contents]
   (let [file-contents (read-contents)
-        file-errors (check-file file file-contents)
-        line-errors (check-lines file file-contents)
-        errors (merge file-errors line-errors)]
-    (if (seq errors)
-      (assoc agg file errors)
-      agg)))
+        {file-errors :errors
+         file-warnings :warnings} (check-file args file file-contents)
+        {line-errors :errors
+         line-warnings :warnings} (check-lines args file file-contents)
+        errors (merge file-errors line-errors)
+        warnings (merge file-warnings line-warnings)]
+    (cond-> agg
+      (seq errors) (assoc-in [:errors file] errors)
+      (seq warnings) (assoc-in [:warnings file] warnings))))
 
-(defn validate-files [files]
-  (reduce-kv validate-file {} files))
+(defn validate-files [args files]
+  (reduce-kv (partial validate-file args) {} files))

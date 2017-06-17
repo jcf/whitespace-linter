@@ -9,7 +9,7 @@ Add to your `:plugins`, most likely in your application's `:dev`
 profile.
 
 ``` clj
-[whitespace-linter "0.1.0"]
+[jcf/whitespace-linter "0.1.1"]
 ```
 
 To lint all files in your `:source-paths` and `:test-paths` run with

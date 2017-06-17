@@ -32,6 +32,25 @@
   (file/read-files (or (args->files args)
                        (project->files project))))
 
+(def numeric-options
+  #{:warn-line-width
+    :error-line-width})
+
+(defn- parse-arg [[k v]]
+  (let [kw (keyword (subs k 1))]
+    (if (numeric-options kw)
+      [kw (Integer/parseInt v)]
+      [kw v])))
+
+(defn- parse-args [args]
+  (let [arg-count (count args)]
+    (if (even? arg-count)
+      (into {} (map parse-arg (apply hash-map args)))
+      (throw
+       (ex-info (str "Even number of forms required! got: " arg-count)
+                {:args args
+                 :causes #{:invalid-args}})))))
+
 (defn whitespace-linter
   "Checks files for whitespace-related issues.
 
@@ -44,14 +63,28 @@
 
   A glob can be used to lint only the files you care about like so:
 
-      $ lein whitespace-linter app/{scripts,styles}/**/*"
+      $ lein whitespace-linter :path app/{scripts,styles}/**/*
+
+  Additionally, you may pass the :warn-line-width option to throw a warning,
+  but not throw an error exit code on a `soft limit` on line length as well as
+  override the default line length limit of 80 with the :error-line-width
+  option"
   [project & args]
-  (let [[files t1] (profile (read-files args project))
+  (let [arg-map (parse-args args)
+        _ (println "Options: " arg-map)
+        path (:path arg-map)
+        [files t1] (profile (read-files path project))
         _ (println (header files t1))
 
-        [errors t2] (profile (lint/validate-files files))
+        [{errors :errors
+          warnings :warnings} t2] (profile (lint/validate-files arg-map files))
         _ (println (done files t2))]
 
+    (when warnings
+      (do (println "Warnings:\n")
+          (report/print-report warnings)))
+
     (if (seq errors)
-      (do (report/print-report errors)
+      (do (println "Errors:\n")
+          (report/print-report errors)
           (System/exit 1)))))

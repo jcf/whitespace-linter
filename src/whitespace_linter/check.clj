@@ -23,29 +23,37 @@
   to `humanized-check-names`.
 
   Checkers are run via `whitespace-linter.lint/check-file` and
-  `whitespace-linter.lint/check-lines`.")
+  `whitespace-linter.lint/check-lines`."
+  (:require [clojure.string :as str]))
 
 (def ^:const max-line-width
   "This is a universal constant, right?"
   80)
 
-(defn hard-tabs [lines]
+(defn hard-tabs [args lines]
   {:pre [(seq lines)]}
-  (filter #(.contains (:content %) "\t") lines))
+  {:errors (filter #(.contains (:content %) "\t") lines)})
 
-(defn trailing-whitespace [lines]
+(defn trailing-whitespace [args lines]
   {:pre [(seq lines)]}
-  (filter #(re-matches #".*\s+$" (:content %)) lines))
+  {:errors (filter #(re-matches #".*\s+$" (:content %)) lines)})
 
-(defn long-lines [lines]
+(defn long-lines
+  [{warn-line-width :warn-line-width
+    error-line-width :error-line-width
+    :or {warn-line-width Long/MAX_VALUE
+         error-line-width max-line-width}
+    :as args} lines]
   {:pre [(seq lines)]}
-  (let [line-length #(-> % :content count)]
-    (filter #(> (line-length %) max-line-width) lines)))
+  (let [line-length #(-> % :content str/trim-newline count)]
+    {:warnings (filter #(and (> (line-length %) warn-line-width)
+                             (<= (line-length %) error-line-width)) lines)
+     :errors (filter #(> (line-length %) error-line-width) lines)}))
 
 ;; File {:path "foobar.clj" :content "File contents\n"}
-(defn missing-final-newline? [{:keys [content]}]
+(defn missing-final-newline? [args {:keys [content]}]
   {:pre [(string? content)]}
-  (not (.endsWith content "\n")))
+  {:errors (not (.endsWith content "\n"))})
 
 (def humanized-check-names
   {:hard-tabs "Hard tabs"
